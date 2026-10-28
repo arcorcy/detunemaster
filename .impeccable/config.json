@@ -1,0 +1,32 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-28T10:14:11.607Z",
+        "reason": "Claude: .seg buttons and .phead are flex-centered in 26/34px rows, text sits 7px+ from borders; static detector misreads compact segmented controls"
+      },
+      {
+        "rule": "wide-tracking",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-28T10:14:18.732Z",
+        "reason": "Claude: 0.18em is only on the all-caps DETUNEMASTER wordmark; other wide tracking is on text-transform:uppercase micro-labels"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-28T10:22:05.140Z",
+        "reason": "user confirmed: user explicitly asked for 'inter uniquement'"
+      }
+    ]
+  }
+}

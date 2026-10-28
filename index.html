@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detunemaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff;--fg:#0a0a0a;--fg2:#3b3b3b;--dim:#6e6e6e;--line:#ebebeb;--soft:#f5f5f5;
+  --shadow:0 12px 32px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.06);
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+  --fs:17px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font:400 14px/1.5 var(--font);-webkit-font-smoothing:antialiased;font-feature-settings:'cv11','ss01'}
+button,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+[hidden]{display:none!important}
+::selection{background:var(--fg);color:var(--bg)}
+
+/* en-tête */
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;background:rgba(255,255,255,.88);backdrop-filter:blur(10px)}
+.brand{font-weight:600;font-size:15px;letter-spacing:-.01em}
+.btn{height:34px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--fg2);transition:background .15s,color .15s}
+.btn:hover{background:var(--soft);color:var(--fg)}
+.btn.primary{background:var(--fg);color:var(--bg)}
+.btn.primary:hover{background:#2a2a2a}
+
+/* édition */
+.editor{max-width:760px;margin:0 auto;padding:24px 24px 60px}
+.editor h1{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.editor p{color:var(--dim);margin-bottom:22px}
+textarea{width:100%;min-height:58vh;border:1px solid var(--line);border-radius:14px;padding:20px 22px;font-size:15px;line-height:1.65;resize:vertical;outline:0;white-space:pre;overflow:auto;color:var(--fg2);transition:border-color .15s}
+textarea:focus{border-color:#c8c8c8}
+textarea::placeholder{color:var(--dim)}
+.edit-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.link{color:var(--dim);font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#d0d0d0}
+.link:hover{color:var(--fg)}
+
+/* lecture */
+.sheet{max-width:760px;margin:0 auto;padding:20px 24px 160px;font-size:var(--fs);line-height:1.5}
+.meta{display:flex;gap:8px;align-items:center;color:var(--dim);font-size:13px;margin-bottom:28px}
+.meta b{color:var(--fg);font-weight:600}
+.sec{font-size:13px;font-weight:500;color:var(--dim);margin:2em 0 .5em}
+.sec:first-child{margin-top:0}
+.gap{height:.7em}
+.ly{color:var(--fg2);white-space:pre-wrap}
+.pl{display:flex;flex-wrap:wrap;align-items:flex-end;margin:.35em 0}
+.k{display:inline-flex;flex-direction:column}
+.kc{font-weight:600;font-size:.88em;min-height:1.45em;padding-right:.5em;white-space:nowrap}
+.kl{white-space:pre;color:var(--fg2);min-height:1.5em}
+.bars{display:flex;flex-wrap:wrap;gap:.3em 1.1em;font-weight:600;font-size:.88em;margin:.35em 0}
+.sym{color:var(--dim);font-weight:400}
+.c{cursor:default;border-radius:5px;padding:1px 4px;margin:-1px -4px;transition:background .1s,color .1s}
+.c:hover,.c.on{background:var(--fg);color:var(--bg)}
+.c.out{text-decoration:underline dotted #9a9a9a;text-underline-offset:4px}
+.c.out:hover,.c.out.on{text-decoration-color:transparent}
+
+/* barre d'outils */
+.dock{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:8;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hint{font-size:13px;color:var(--dim);background:var(--bg);padding:4px 12px;border-radius:999px;transition:opacity .4s}
+.hint.gone,.dock:has(.pop:not([hidden])) .hint{opacity:0;pointer-events:none}
+.bar{display:flex;align-items:center;gap:2px;padding:5px;background:var(--bg);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow)}
+.ib{height:38px;min-width:38px;padding:0 12px;border-radius:999px;font-size:14px;font-weight:500;color:var(--fg2);display:inline-flex;align-items:center;justify-content:center;gap:6px;position:relative;white-space:nowrap;transition:background .12s}
+.ib:hover,.ib[aria-expanded="true"]{background:var(--soft);color:var(--fg)}
+.ib.sq{padding:0;font-size:18px;font-weight:400}
+.ib .key{font-weight:600;font-size:16px;color:var(--fg)}
+.ib .sub{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.ib .dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--fg)}
+.sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+
+/* popovers */
+.pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--bg);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;width:320px;max-width:calc(100vw - 32px);animation:up .16s ease-out}
+@keyframes up{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
+.ptitle{font-size:13px;color:var(--dim);margin-bottom:10px}
+.ptitle b{color:var(--fg);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:14px}
+.grid button{height:36px;border-radius:8px;font-weight:500;font-size:14px;color:var(--fg2)}
+.grid button:hover{background:var(--soft)}
+.grid button.orig{box-shadow:inset 0 0 0 1px var(--line)}
+.grid button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
+.prow + .prow{border-top:1px solid var(--soft)}
+.plabel{font-size:14px;color:var(--fg2)}
+.seg{display:flex;background:var(--soft);border-radius:9px;padding:2px}
+.seg button{height:30px;padding:0 10px;border-radius:7px;font-size:13px;font-weight:500;color:var(--dim);white-space:nowrap}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.seg.full{width:100%}
+.seg.full button{flex:1}
+.stepper{display:flex;align-items:center;background:var(--soft);border-radius:9px;padding:2px}
+.stepper button{width:30px;height:30px;border-radius:7px;font-size:16px;color:var(--fg2)}
+.stepper button:hover{background:var(--bg)}
+.stepper span{min-width:32px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+select{appearance:none;-webkit-appearance:none;height:32px;border:0;border-radius:8px;background:var(--soft);padding:0 28px 0 10px;font-size:13px;font-weight:500;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,#777 50%),linear-gradient(135deg,#777 50%,transparent 50%);
+  background-position:calc(100% - 14px) 14px,calc(100% - 10px) 14px;background-size:4px 4px;background-repeat:no-repeat}
+.note{font-size:13px;color:var(--dim);line-height:1.5;margin-top:10px}
+.suggest{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:10px 12px;background:var(--soft);border-radius:10px;font-size:13px}
+.suggest button{font-weight:600;font-size:13px}
+.suggest button:hover{text-decoration:underline}
+.acts{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--soft)}
+.acts button{flex:1;height:34px;border-radius:9px;background:var(--soft);font-size:13px;font-weight:500}
+.acts button:hover{background:#ececec}
+.degs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.deg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;border-radius:9px;cursor:default;margin:0}
+.deg .n{font-size:12px;color:var(--dim)}
+.deg .t{font-weight:600;font-size:14px}
+.deg:hover{background:var(--fg);color:var(--bg)}
+.deg:hover .n{color:#bdbdbd}
+#pop-scale{width:440px}
+
+/* diagramme */
+#tip{position:fixed;z-index:20;background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;min-width:180px}
+#tip.show{opacity:1;transform:none}
+#tip.pin{pointer-events:auto}
+.tt-h{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:10px}
+.tt-name{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.tt-meta{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.tt-foot{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.55}
+.tt-foot b{color:var(--fg);font-weight:500}
+#tip svg{display:block}
+
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+
+@media (max-width:600px){
+  header{padding:0 16px}
+  .editor,.sheet{padding-left:16px;padding-right:16px}
+  .dock{bottom:16px;width:calc(100% - 32px)}
+  .bar{max-width:100%;overflow-x:auto}
+  .ib{padding:0 10px}
+  .grid{grid-template-columns:repeat(4,1fr)}
+  .degs{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Detunemaster</div>
+  <button class="btn" id="editBtn">Modifier</button>
+</header>
+
+<section class="editor" id="editor" hidden>
+  <h1>Colle ta grille</h1>
+  <p>Accords au-dessus des paroles, ou entre crochets dans le texte, comme [Am]ceci.</p>
+  <textarea id="input" spellcheck="false" placeholder="G               D/F#&#10;  Les néons s'éteignent sur le quai"></textarea>
+  <div class="edit-foot">
+    <button class="link" id="example">Essayer un exemple</button>
+    <button class="btn primary" id="done">Afficher</button>
+  </div>
+</section>
+
+<section class="sheet" id="sheet" hidden>
+  <div class="meta" id="meta"></div>
+  <div id="out"></div>
+</section>
+
+<div class="dock" id="dock" hidden>
+  <div class="hint" id="hint">Survole un accord pour voir son doigté</div>
+  <div class="bar" id="bar">
+    <button class="ib sq" data-shift="-1" title="Demi-ton plus bas (−)" aria-label="Demi-ton plus bas">−</button>
+    <button class="ib" data-pop="key" aria-expanded="false" title="Tonalité"><span class="key" id="keyLbl">G</span><span class="sub" id="shiftLbl"></span></button>
+    <button class="ib sq" data-shift="1" title="Demi-ton plus haut (+)" aria-label="Demi-ton plus haut">+</button>
+    <span class="sep"></span>
+    <button class="ib" data-pop="capo" aria-expanded="false"><span id="capoLbl">Capo</span><span class="dot" id="capoDot" hidden></span></button>
+    <button class="ib" data-pop="scale" aria-expanded="false">Gamme</button>
+    <button class="ib sq" data-pop="more" aria-expanded="false" aria-label="Réglages">⋯</button>
+  </div>
+
+  <div class="pop" id="pop-key" hidden>
+    <div class="ptitle">Tonalité cible · original <b id="origLbl">G</b></div>
+    <div class="grid" id="keyGrid"></div>
+    <div class="seg full" data-key="mode"><button data-v="orig">Mode d'origine</button><button data-v="maj">Majeur</button><button data-v="min">Mineur</button></div>
+  </div>
+
+  <div class="pop" id="pop-capo" hidden>
+    <div class="prow"><span class="plabel">Position du capo</span><div class="stepper"><button data-capo="-1" aria-label="Capo moins">−</button><span id="capoVal">0</span><button data-capo="1" aria-label="Capo plus">+</button></div></div>
+    <div class="suggest" id="suggest" hidden><span id="suggestTxt"></span><button id="suggestBtn">Appliquer</button></div>
+    <div class="note">Avec un capo, la grille affiche les formes à jouer, la tonalité entendue ne change pas.</div>
+  </div>
+
+  <div class="pop" id="pop-scale" hidden>
+    <div class="ptitle" id="scaleTitle"></div>
+    <div class="degs" id="degs"></div>
+  </div>
+
+  <div class="pop" id="pop-more" hidden>
+    <div class="prow"><span class="plabel">Notation</span><div class="seg" data-key="notation"><button data-v="abc">ABC</button><button data-v="latin">Do Ré</button><button data-v="deg">Degrés</button></div></div>
+    <div class="prow"><span class="plabel">Altérations</span><div class="seg" data-key="acc"><button data-v="auto">Auto</button><button data-v="sharp">♯</button><button data-v="flat">♭</button></div></div>
+    <div class="prow"><span class="plabel">Diagrammes</span><div class="seg" data-key="inst"><button data-v="guitar">Guitare</button><button data-v="ukulele">Ukulélé</button><button data-v="piano">Piano</button></div></div>
+    <div class="prow"><span class="plabel">Taille du texte</span><div class="stepper"><button data-font="-1" aria-label="Plus petit">−</button><span id="fontVal">17</span><button data-font="1" aria-label="Plus grand">+</button></div></div>
+    <div class="prow"><span class="plabel">Tonalité d'origine</span><select id="origKey" aria-label="Tonalité d'origine"></select></div>
+    <div class="acts"><button id="copy">Copier le texte</button><button id="reset">Réinitialiser</button></div>
+  </div>
+</div>
+
+<div id="tip" role="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
